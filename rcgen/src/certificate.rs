@@ -137,6 +137,16 @@ impl CertificateParams {
 	}
 
 	/// Generate a new certificate from the given parameters, signed by the provided issuer.
+	pub fn signed_by(
+		self,
+		key_pair: &KeyPair,
+		issuer: &Certificate,
+		issuer_key: &KeyPair,
+	) -> Result<Certificate, Error> {
+		self.signed_by2(key_pair, &issuer.params, issuer_key)
+	}
+
+	/// Generate a new certificate from the given parameters, signed by the provided issuer.
 	///
 	/// The returned certificate will have its issuer field set to the subject of the
 	/// provided `issuer`, and the authority key identifier extension will be populated using
@@ -147,16 +157,16 @@ impl CertificateParams {
 	///
 	/// The returned [`Certificate`] may be serialized using [`Certificate::der`] and
 	/// [`Certificate::pem`].
-	pub fn signed_by(
+	pub fn signed_by2(
 		self,
 		key_pair: &KeyPair,
-		issuer: &Certificate,
+		issuer: &CertificateParams,
 		issuer_key: &KeyPair,
 	) -> Result<Certificate, Error> {
 		let issuer = Issuer {
-			distinguished_name: &issuer.params.distinguished_name,
-			key_identifier_method: &issuer.params.key_identifier_method,
-			key_usages: &issuer.params.key_usages,
+			distinguished_name: &issuer.distinguished_name,
+			key_identifier_method: &issuer.key_identifier_method,
+			key_usages: &issuer.key_usages,
 			key_pair: issuer_key,
 		};
 
